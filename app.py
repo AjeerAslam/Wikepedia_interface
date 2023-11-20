@@ -97,7 +97,5 @@ def main():
             st.session_state.currentChat.append({"role": "assistant", "content": full_response})
  
 if __name__ == '__main__':
-    apiKey= st.text_input("Enter your api key")
-    if apiKey is not None and apiKey != "":
-        os.environ["OPENAI_API_KEY"] =apiKey
-        main()
+    os.environ["OPENAI_API_KEY"] =st.secrets['OPENAI_API_KEY']
+    main()
