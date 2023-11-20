@@ -9,7 +9,8 @@ from langchain.document_loaders import UnstructuredURLLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.chains import RetrievalQAWithSourcesChain
  
-os.environ["OPENAI_API_KEY"] = "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"
+
+#"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"
 
 def main():
     st.header("Wikipedia Qna")
@@ -96,4 +97,7 @@ def main():
             st.session_state.currentChat.append({"role": "assistant", "content": full_response})
  
 if __name__ == '__main__':
-    main()
+    apiKey= st.text_input("Enter your api key")
+    if apiKey is not None and apiKey != "":
+        os.environ["OPENAI_API_KEY"] =apiKey
+        main()
