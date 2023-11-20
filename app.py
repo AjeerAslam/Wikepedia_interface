@@ -26,7 +26,7 @@ def main():
 
         # Text Splitter
         text_splitter = CharacterTextSplitter(separator='\n',
-                                      chunk_size=2000,
+                                      chunk_size=1000,
                                       chunk_overlap=200)
         docs = text_splitter.split_documents(data)
         embeddings = OpenAIEmbeddings()
