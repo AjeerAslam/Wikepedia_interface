@@ -1,75 +1,31 @@
 import streamlit as st
-from dotenv import load_dotenv
-import pickle
-from PyPDF2 import PdfReader
+import os
+import time
 from streamlit_extras.add_vertical_space import add_vertical_space
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.llms import OpenAI
-from langchain.chains.question_answering import load_qa_chain
-from langchain.callbacks import get_openai_callback
-import os
-import time
-# get a token: https://platform.openai.com/account/api-keys
-
 from langchain.document_loaders import UnstructuredURLLoader
 from langchain.text_splitter import CharacterTextSplitter
-import faiss
 from langchain.chains import RetrievalQAWithSourcesChain
-
-from PIL import Image
-import base64
-import wikipedia
-st.set_page_config(
-    page_title="Wikipedia QnA",
-    page_icon=Image.open("logo.png"),
-    layout="wide",
-)
-app_heading_css = """
-    <style>
-        .container {
-            display: flex;
-        }
-        .logo-text {
-            font-weight:700 !important;
-            font-size:40px !important;
-        }
-        .logo-img {
-            float:right;
-            margin-right:20px !important;
-        }
-    </style>
-    """
-app_heading_html = app_heading_css + f"""
-    <div class="container">
-        <img class="logo-img" src="data:image/png;base64,{base64.b64encode(open("logo.png", "rb").read()).decode()}" width=70 height=70>
-        <p class="logo-text">{"Wikipedia QnA"}</p>
-    </div>
-    """
-st.markdown(
-    app_heading_html,
-    unsafe_allow_html=True
-)
-
-
  
 os.environ["OPENAI_API_KEY"] = "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"
 
- 
 def main():
-    st.header("Chat with PDF 💬")
- 
- 
+    st.header("Wikipedia Qna")
+
     # get link
     input = st.text_input("Enter your url")
     urls=[input]
     if input is not None and input != "":
+
+        #load data from wikipedia page.
         loaders = UnstructuredURLLoader(urls=urls)
         data = loaders.load()
+
         # Text Splitter
         text_splitter = CharacterTextSplitter(separator='\n',
-                                      chunk_size=1000,
+                                      chunk_size=2000,
                                       chunk_overlap=200)
         docs = text_splitter.split_documents(data)
         embeddings = OpenAIEmbeddings()
@@ -98,12 +54,10 @@ def main():
             add_vertical_space(5)
             st.write('Made with ❤️ by Ajeer')
 
+        #Showing wikipedia content in the streamlit page
         wiki_URL = input
         if wiki_URL is not None and wiki_URL != "":
             st.components.v1.iframe(src=wiki_URL, width=None, height=550, scrolling=True)
-
-        
-            
 
 
         # Display chat messages from history on app rerun
@@ -125,7 +79,7 @@ def main():
                 message_placeholder = st.empty()
                 full_response = ""
 
-                docs = VectorStore.similarity_search(query=prompt, k=3)
+                #sending prompt to openai and getting reponse
                 llm = OpenAI()
                 chain = RetrievalQAWithSourcesChain.from_llm(llm=llm, retriever=VectorStore.as_retriever())
                 response=chain({"question": prompt}, return_only_outputs=True)
